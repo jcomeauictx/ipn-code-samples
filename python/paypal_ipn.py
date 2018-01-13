@@ -8,6 +8,7 @@ import sys
 import cgi
 import smtplib
 import logging
+import json
 
 try:  # Python2
     import urlparse
@@ -40,11 +41,31 @@ def paypal_ipn(verify_url=VERIFY_URL_TEST):
     logging.info('response: %s', response)
     if response == 'VERIFIED':
         logging.info('valid transaction')
+        sendmail(postdata)
     elif response == 'INVALID':
         logging.warning('invalid transaction')
     else:
         logging.error('unexpected response: %s', response)
     print('IPN session complete.')
+
+def sendmail(contents):
+    '''
+    send a mail to PayPal recipient or server administrator
+    '''
+    try:
+        ipn_dict = dict(urlparse.parse_qsl(contents))
+    except (TypeError, ValueError):
+        ipn_dict = {}
+    to_addr = [ipn_dict.get('receiver_email', 'root@localhost')]
+    from_addr = 'paypal_ipn@%s' % to_addr[0].split('@')[1]
+    server = smtplib.SMTP('localhost')
+    message = [
+        'From: %s\n' % from_addr,
+        'To: %s\n' % to_addr[0],
+        '\n',
+        'Received order: %s\n' % contents,
+    ]
+    server.sendmail(from_addr, to_addr, ''.join(message))
 
 if __name__ == '__main__':
     paypal_ipn()

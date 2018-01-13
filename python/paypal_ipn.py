@@ -21,6 +21,7 @@ except ImportError:  # Python3
 
 VERIFY_URL_PROD = 'https://www.paypal.com/cgi-bin/webscr'
 VERIFY_URL_TEST = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
+logging.basicConfig(level=logging.DEBUG if __debug__ else logging.INFO)
 
 def paypal_ipn(verify_url=VERIFY_URL_TEST):
     '''
@@ -31,10 +32,13 @@ def paypal_ipn(verify_url=VERIFY_URL_TEST):
     # Add '_notify-validate' parameter
     parameters.append(('cmd', '_notify-validate'))
     postdata = urlencode(dict(parameters)).encode('utf8')
+    logging.info('postdata: %s', postdata)
     request = Request(verify_url)
     request.add_header('content-type', 'application/x-www-form-urlencoded')
     # Post back to PayPal for validation
+    logging.info('posting to %s', verify_url)
     response = urlopen(request, postdata).read().decode('utf8')
+    logging.info('response: %s', response)
     if response == 'VERIFIED':
         print(response)
     elif response == 'INVALID':

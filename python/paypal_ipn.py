@@ -34,7 +34,6 @@ def paypal_ipn(verify_url=VERIFY_URL_TEST):
     postdata = urlencode(dict(parameters)).encode('utf8')
     logging.info('postdata: %s', postdata)
     request = Request(verify_url)
-    request.add_header('content-type', 'application/x-www-form-urlencoded')
     # Post back to PayPal for validation
     logging.info('posting to %s', verify_url)
     response = urlopen(request, postdata).read().decode('utf8')
@@ -45,6 +44,7 @@ def paypal_ipn(verify_url=VERIFY_URL_TEST):
         logging.warning('invalid transaction')
     else:
         logging.error('unexpected response: %s', response)
+    print('IPN session complete.')
 
 if __name__ == '__main__':
     paypal_ipn()

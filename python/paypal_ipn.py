@@ -14,7 +14,6 @@ try:  # Python2
     from urllib2 import Request, urlopen
     from urllib import urlencode
 except ImportError:  # Python3
-    logging.warning('using Python3')
     import urllib.parse as urlparse
     from urllib.request import Request, urlopen
     from urllib.parse import urlencode
@@ -22,6 +21,7 @@ except ImportError:  # Python3
 VERIFY_URL_PROD = 'https://www.paypal.com/cgi-bin/webscr'
 VERIFY_URL_TEST = 'https://www.sandbox.paypal.com/cgi-bin/webscr'
 logging.basicConfig(level=logging.DEBUG if __debug__ else logging.INFO)
+logging.debug('logging at DEBUG level')
 
 def paypal_ipn(verify_url=VERIFY_URL_TEST):
     '''
@@ -40,11 +40,11 @@ def paypal_ipn(verify_url=VERIFY_URL_TEST):
     response = urlopen(request, postdata).read().decode('utf8')
     logging.info('response: %s', response)
     if response == 'VERIFIED':
-        print(response)
+        logging.info('valid transaction')
     elif response == 'INVALID':
-        print(response)
+        logging.warning('invalid transaction')
     else:
-        print(response)
+        logging.error('unexpected response: %s', response)
 
 if __name__ == '__main__':
     paypal_ipn()

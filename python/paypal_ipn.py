@@ -62,6 +62,7 @@ def sendmail(contents):
     message = [
         'From: %s\n' % from_addr,
         'To: %s\n' % to_addr[0],
+        'Subject: PayPal order received\n',
         '\n',
         'Received order: %s\n' % contents,
     ]
